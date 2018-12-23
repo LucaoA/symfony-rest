@@ -124,7 +124,7 @@ class Task
      */
     public function setCreateAt($createAt)
     {
-        $this->createAt = new \DateTime();
+        $this->createAt = new \DateTime('now', new \DateTimeZone('America/Sao_Paulo'));
 
         return $this;
     }
@@ -150,7 +150,7 @@ class Task
      */
     public function setUpdateAt($updateAt)
     {
-        $this->updateAt = new \DateTime();
+        $this->updateAt = new \DateTime('now', new \DateTimeZone('America/Sao_Paulo'));
 
         return $this;
     }

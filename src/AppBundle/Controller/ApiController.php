@@ -16,6 +16,7 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 /**
  * Task controller.
@@ -24,8 +25,6 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
  */
 class ApiController extends Controller
 {
-    // TODO - add list condition="request.isXmlHttpRequest()" to all routers; 
-
     /**
      * Lists all task entities. 
      *
@@ -36,7 +35,7 @@ class ApiController extends Controller
         $em = $this->getDoctrine()->getManager();
         $tasks = $em->getRepository('AppBundle:Task')->findAll();
         $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = [new ObjectNormalizer()];
+        $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
         $serializer = new Serializer($normalizers, $encoders);
         return new JsonResponse(
             $serializer->serialize($tasks, 'json'),
@@ -62,7 +61,7 @@ class ApiController extends Controller
         $form->submit($data);
         
         $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = [new ObjectNormalizer()];
+        $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
         $serializer = new Serializer($normalizers, $encoders);
 
         if ($form->isValid()) {
@@ -120,7 +119,7 @@ class ApiController extends Controller
         $form->submit($data);
         
         $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = [new ObjectNormalizer()];
+        $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
         $serializer = new Serializer($normalizers, $encoders);
 
         if ($form->isValid()) {
