@@ -1,0 +1,96 @@
+<?php
+
+namespace AppBundle\Controller;
+
+use AppBundle\Entity\Task;
+use AppBundle\Form\TaskType;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+
+/**
+ * Task controller.
+ *
+ * @Route("api/v1")
+ */
+class ApiController extends Controller
+{
+    // TODO - add list condition="request.isXmlHttpRequest()" to all routers; 
+
+    /**
+     * Lists all task entities. 
+     *
+     * @Route("/tasks", name="task_list", methods={"GET"})
+     */
+    public function listAction()
+    {   
+        $em = $this->getDoctrine()->getManager();
+        $tasks = $em->getRepository('AppBundle:Task')
+            ->createQueryBuilder('task')
+            ->getQuery();
+        return new JsonResponse(
+            ['status' => 'success', 'data' => $tasks->getArrayResult()],
+            Response::HTTP_OK
+        );
+    }
+
+     /**
+     *  Creates a new task entity.
+     *
+     * @Route("/tasks", name="task_create", methods={"POST"})
+     */
+    public function newAction(Request $request)
+    {       
+        $body = $request->getContent();
+        $data = \json_decode($body, true);
+
+        $task = new Task();
+        $form = $this->createForm(TaskType::class, $task);
+        $form->submit($data);
+        
+        if ($form->isValid()) {
+            $encoders = [new XmlEncoder(), new JsonEncoder()];
+            $normalizers = [new ObjectNormalizer()];
+            $serializer = new Serializer($normalizers, $encoders);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($task);
+            $em->flush();
+            
+            return new JsonResponse(
+                $serializer->serialize($task, 'json'),
+                Response::HTTP_CREATED,
+                [],
+                true
+            );
+        }
+        dump($form->isValid(), $form->count());exit;    
+        return new JsonResponse(
+            $form->getView(),
+            Response::HTTP_BAD_REQUEST
+        );
+    }
+    
+    /**
+     *
+     *  Creates a new task entity.
+     *
+     *  @Route("/tasks/{taskId}",  name="task_update, methods={"PUT"})
+     */
+    /*public function editAction(Request $request, $taskId)
+    {       
+        $body = $request->getContent();
+        $data = \json_decode($body, true);
+
+        dump($data);exit;
+    }*/
+}

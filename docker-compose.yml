@@ -1,0 +1,42 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+
+    memcached:
+      image: memcached:alpine
+      container_name: symfony-rest-memcached
+
+    mysql:
+      image: mysql:5.7
+      container_name: symfony-rest-mysql
+      working_dir: /application
+      volumes:
+        - .:/application
+      environment:
+        - MYSQL_ROOT_PASSWORD=dev
+        - MYSQL_DATABASE=symfony_rest
+        - MYSQL_USER=dev
+        - MYSQL_PASSWORD=dev
+      ports:
+        - "1996:3306"
+
+    webserver:
+      image: nginx:alpine
+      container_name: symfony-rest-webserver
+      working_dir: /application
+      volumes:
+          - .:/application
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "1994:80"
+
+    php-fpm:
+      build: phpdocker/php-fpm
+      container_name: symfony-rest-php-fpm
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.0/fpm/conf.d/99-overrides.ini
+
