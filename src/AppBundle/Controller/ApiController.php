@@ -4,19 +4,13 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Task;
 use AppBundle\Form\TaskType;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use AppBundle\Service\Serializer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
-
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 /**
  * Task controller.
@@ -25,44 +19,43 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
  */
 class ApiController extends Controller
 {
+
     /**
-     * Lists all task entities. 
+     * Lists all task entities.
      *
      * @Route("/", name="task_list", methods={"GET"})
+     *
+     * @param Serializer $serializer
+     * @return JsonResponse
      */
-    public function listAction()
-    {   
+    public function listAction(Serializer $serializer):JsonResponse
+    {
         $em = $this->getDoctrine()->getManager();
         $tasks = $em->getRepository('AppBundle:Task')->findAll();
-        $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
-        $serializer = new Serializer($normalizers, $encoders);
         return new JsonResponse(
-            $serializer->serialize($tasks, 'json'),
+            $serializer->toJson($tasks),
             Response::HTTP_OK,
             [],
             true
         );
     }
 
-     /**
-     *  Creates a new task entity.
+    /**
+     * Creates a new task entity.
      *
      * @Route("/", name="task_create", methods={"POST"})
-     * @Method("POST")
+     *
+     * @param Serializer $serializer
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function createAction(Request $request)
+    public function createAction(Serializer $serializer, Request $request):JsonResponse
     {       
         $body = $request->getContent();
         $data = \json_decode($body, true);
-
         $task = new Task();
         $form = $this->createForm(TaskType::class, $task);
         $form->submit($data);
-        
-        $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
-        $serializer = new Serializer($normalizers, $encoders);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
@@ -70,7 +63,7 @@ class ApiController extends Controller
             $em->flush();
             
             return new JsonResponse(
-                $serializer->serialize($task, 'json'),
+                $serializer->toJson($task),
                 Response::HTTP_CREATED,
                 [],
                 true
@@ -86,24 +79,29 @@ class ApiController extends Controller
         }
         
         return new JsonResponse(
-            $serializer->serialize($message, 'json'),
+            $serializer->toJson($message),
             Response::HTTP_BAD_REQUEST,
             [],
             true
         );
     }
-    
+
     /**
      * Update a new task entity.
-     * 
+     *
      * @Route(
-     *  "/{taskId}", 
-     *  name="task_update", 
+     *  "/{taskId}",
+     *  name="task_update",
      *  methods={"PUT"},
      *  requirements={"taskId"="\d+"}
      * )
+     *
+     * @param Serializer $serializer
+     * @param Request $request
+     * @param $taskId
+     * @return JsonResponse
      */
-    public function updateAction(Request $request, $taskId)
+    public function updateAction(Serializer $serializer, Request $request, $taskId):JsonResponse
     {       
         $em = $this->getDoctrine()->getManager();
         $task = $em->getRepository('AppBundle:Task')->findOneById($taskId);
@@ -118,10 +116,6 @@ class ApiController extends Controller
         $form = $this->createForm(TaskType::class, $task);
         $form->submit($data);
         
-        $encoders = [new XmlEncoder(), new JsonEncoder()];
-        $normalizers = array(new DateTimeNormalizer(), new ObjectNormalizer());
-        $serializer = new Serializer($normalizers, $encoders);
-
         if ($form->isValid()) {
             $this->getDoctrine()->getManager()->flush();
 
@@ -130,7 +124,7 @@ class ApiController extends Controller
             $em->flush();
             
             return new JsonResponse(
-                $serializer->serialize($task, 'json'),
+                $serializer->toJson($task),
                 Response::HTTP_OK,
                 [],
                 true
@@ -146,7 +140,7 @@ class ApiController extends Controller
         }
         
         return new JsonResponse(
-            $serializer->serialize($message, 'json'),
+            $this->get(Serializer::class)->toJson($message),
             Response::HTTP_BAD_REQUEST,
             [],
             true
@@ -154,28 +148,21 @@ class ApiController extends Controller
     }
 
     /**
-     * Delete a new task entity.
-     * 
+     * Delete a task entity.
+     *
      * @Route(
      *  "/{taskId}",
      *  name="task_delete",
      *  methods={"DELETE"},
      *  requirements={"taskId"="\d+"}
      * )
+     *
+     * @param Request $request
+     * @param $taskId
+     * @return JsonResponse
      */
-    public function deleteAction(Request $request, $taskId)
+    public function deleteAction(Request $request, $taskId):JsonResponse
     {       
-        $em = $this->getDoctrine()->getManager();
-        $task = $em->getRepository('AppBundle:Task')->findOneById($taskId);
-
-        if (!$task) {
-            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-        }
-
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($task);
-        $em->flush();
-
-        return new JsonResponse(null, Response::HTTP_OK);
+        // TODO - delete a task entity
     }
 }

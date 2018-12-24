@@ -35,7 +35,7 @@ class Task
 
     /**
      * @var bool
-     *  
+     * @Assert\NotNull
      * @ORM\Column(name="done", type="boolean", nullable=false, unique=false)
      */
     private $done;
