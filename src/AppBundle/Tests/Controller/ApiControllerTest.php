@@ -58,7 +58,7 @@ class ApiControllerTest extends WebTestCase
             [],
             ['HTTP_Content-Type' => 'application/json']
         );
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
     }
 
 
@@ -72,7 +72,7 @@ class ApiControllerTest extends WebTestCase
             [],
             ['HTTP_Content-Type' => 'application/json']
         );
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode());
     }
 
     public function testUpdateActionWithSuccessRequest()

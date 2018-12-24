@@ -142,6 +142,7 @@ class Task
     /**
      * Set updateAt
      * 
+     * @ORM\PrePersist()
      * @ORM\PreUpdate
      * 
      * @param \DateTime $updateAt

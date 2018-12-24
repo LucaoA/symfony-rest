@@ -107,7 +107,7 @@ class ApiController extends Controller
         $task = $em->getRepository('AppBundle:Task')->findOneById($taskId);
 
         if (!$task) {
-            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 
         $body = $request->getContent();
