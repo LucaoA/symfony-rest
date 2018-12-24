@@ -14,7 +14,8 @@ class ApiControllerTest extends WebTestCase
     {
         // Create a new client to browse the application
         $client = static::createClient();
-        $client->request('GET', '/api/v1/tasks/');
+        $url = $client->getContainer()->get('router')->generate('task_list');
+        $client->request('GET', $url);
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 
@@ -23,7 +24,8 @@ class ApiControllerTest extends WebTestCase
 
         // Create a new client to browse the application
         $client = static::createClient();
-        $client->request('POST', '/api/v1/tasks/',
+        $url = $client->getContainer()->get('router')->generate('task_create');
+        $client->request('POST', $url,
             [],
             [],
             ['HTTP_Content-Type' => 'application/json'],
@@ -36,7 +38,8 @@ class ApiControllerTest extends WebTestCase
     public function testCreateActionWithBadRequest()
     {
         $client = static::createClient();
-        $client->request('POST', '/api/v1/tasks/',
+        $url = $client->getContainer()->get('router')->generate('task_create');
+        $client->request('POST', $url,
             [],
             [],
             ['HTTP_Content-Type' => 'application/json'],
@@ -49,7 +52,8 @@ class ApiControllerTest extends WebTestCase
     public function testEditActionWithNoContentRequest()
     {
         $client = static::createClient();
-        $client->request('PUT', '/api/v1/tasks/123456',
+        $url = $client->getContainer()->get('router')->generate('task_update', ['taskId' => '12313123']);
+        $client->request('PUT', $url,
             [],
             [],
             ['HTTP_Content-Type' => 'application/json']
@@ -62,7 +66,8 @@ class ApiControllerTest extends WebTestCase
     {
 
         $client = static::createClient();
-        $client->request('PUT', '/api/v1/tasks/123456',
+        $url = $client->getContainer()->get('router')->generate('task_update', ['taskId' => '12313123']);
+        $client->request('PUT', $url,
             [],
             [],
             ['HTTP_Content-Type' => 'application/json']
@@ -82,7 +87,8 @@ class ApiControllerTest extends WebTestCase
         $em->flush();
 
         $client = static::createClient();
-        $client->request('PUT', '/api/v1/tasks/' . $task->getId(),
+        $url = $client->getContainer()->get('router')->generate('task_update', ['taskId' => $task->getId()]);
+        $client->request('PUT', $url,
             [],
             [],
             ['HTTP_Content-Type' => 'application/json'],
@@ -104,7 +110,8 @@ class ApiControllerTest extends WebTestCase
         $em->flush();
 
         $client = static::createClient();
-        $client->request('PUT', '/api/v1/tasks/' . $task->getId(),
+        $url = $client->getContainer()->get('router')->generate('task_update', ['taskId' => $task->getId()]);
+        $client->request('PUT', $url,
             [],
             [],
             ['HTTP_Content-Type' => 'application/json'],
