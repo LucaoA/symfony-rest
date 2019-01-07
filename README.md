@@ -26,10 +26,10 @@ Memcached|memcached|11211 (default)
 
 You need these commands to start the project DEV:
  * docker-compose up 
+ * docker-compose exec composer install 
  * docker-compose exec php-fpm bin/console doctrine:schema:create
  * docker-compose exec php-fpm bin/console doctrine:schema:validate
- * docker-compose exec php-fpm bin/console doctrine:schema:update
- * composer require --dev symfony/phpunit-bridge    
+ * docker-compose exec php-fpm bin/console doctrine:schema:update  
 
 Run the unit tests
 ===
